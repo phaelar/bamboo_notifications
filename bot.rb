@@ -20,7 +20,7 @@ def broadcast(message)
   end
 end
 
-scheduler.every '1min' do
+scheduler.every '1m' do
   plan_keys.each do |plan|
     response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{plan}.json?os_authType=basic", basic_auth: authinfo)
     latest_build_json = response.parsed_response.dig("results", "result").first
