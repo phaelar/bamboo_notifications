@@ -16,6 +16,7 @@ response = ""
 scheduler = Rufus::Scheduler.new
 $bamboo_url = config["BAMBOO_URL"]
 plan_keys = config["PLAN_KEYS"]
+frequency = config["FREQUENCY"]
 
 def broadcast(message)
   begin
@@ -27,7 +28,7 @@ def broadcast(message)
   end
 end
 
-scheduler.every '5s' do
+scheduler.every frequency do
   plan_keys.each do |plan|
     p plan
     response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{plan}.json?os_authType=basic", basic_auth: authinfo)
