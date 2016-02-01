@@ -3,16 +3,19 @@ require 'httparty'
 require 'uri'
 require 'nokogiri'
 require 'rufus-scheduler'
+require 'yaml'
 
-$token = ENV["TAPI_TOKEN"]
-$channel_id = ENV["CHANNEL"]
-authinfo = {username: ENV["USER"], password: ENV["PASS"]}
+config = YAML.load_file('secrets.yml')
+
+$token = config["TAPI_TOKEN"]
+$channel_id = config["CHANNEL"]
+authinfo = {username: config["USER"], password: config["PASS"]}
 latest_keys = {}
 prev_buid_failed = {}
 response = ""
 scheduler = Rufus::Scheduler.new
-$bamboo_url = ENV["BAMBOO_URL"]
-plan_keys = ARGV
+$bamboo_url = config["BAMBOO_URL"]
+plan_keys = config["PLAN_KEYS"]
 
 def broadcast(message)
   Telegram::Bot::Client.run($token) do |bot|
@@ -22,6 +25,7 @@ end
 
 scheduler.every '1m' do
   plan_keys.each do |plan|
+    p plan
     response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{plan}.json?os_authType=basic", basic_auth: authinfo)
     latest_build_json = response.parsed_response.dig("results", "result").first
     latest_keys[plan] = latest_build_json["planResultKey"]["key"]
