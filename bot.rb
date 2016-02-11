@@ -19,12 +19,19 @@ plan_keys = config["PLAN_KEYS"]
 frequency = config["FREQUENCY"]
 
 def broadcast(message)
-  begin
-    Telegram::Bot::Client.run($token) do |bot|
-      bot.api.send_message(chat_id: $channel_id, text: message)
+  backoff = 5
+  loop do
+    begin
+      Telegram::Bot::Client.run($token) do |bot|
+        bot.api.send_message(chat_id: $channel_id, text: message)
+      end
+      backoff = 0
+    rescue Telegram::Bot::Exceptions::ResponseError => e
+      p "#{Time.now} Failed to send message!"
+      p e
+      backoff = backoff * 5
     end
-  rescue Exception => e
-    p "#{Time.now} Failed to send message!"
+    break if backoff == 0
   end
 end
 
