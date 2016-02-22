@@ -35,6 +35,10 @@ def broadcast(message)
   end
 end
 
+def get_culprits(http_response)
+  summary = Nokogiri::HTML(http_response.parsed_response["changes"])
+end
+
 scheduler.every frequency do
   plan_keys.each do |plan|
     p plan
@@ -43,16 +47,13 @@ scheduler.every frequency do
     latest_keys[plan] = latest_build_json["planResultKey"]["key"]
 
     if (latest_build_json["state"] != "Successful" && prev_buid_failed[plan] != true)
-      indiv_response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{latest_keys[plan]}.json?os_authType=basic", basic_auth: authinfo)
-      summary = Nokogiri::HTML(indiv_response.parsed_response["reasonSummary"])
-      culprits = summary.css('a').map do |author|
-        author.children.text
-      end
+      indiv_response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{latest_keys[plan]}.json?os_authType=basic?expand=changes", basic_auth: authinfo)
+      culprits = indiv_response["changes"]["change"].map { |commit| commit["author"] }.uniq.join(' ,')
       p "failed"
       broadcast("\xF0\x9F\x94\xA5[#{latest_build_json["plan"]["shortName"]}] build #{latest_keys[plan]} failed!\xF0\x9F\x94\xA5 \nCulprits: #{culprits}")
     elsif (latest_build_json["state"] == "Successful" && prev_buid_failed[plan] == true)
       p "passed"
-      broadcast("\xF0\x9F\x8D\x80[]#{latest_build_json["plan"]["shortName"]}] build #{latest_keys[plan]} passing again!\xF0\x9F\x8D\x80")
+      broadcast("\xF0\x9F\x8D\x80[#{latest_build_json["plan"]["shortName"]}] build #{latest_keys[plan]} passing again!\xF0\x9F\x8D\x80")
     end
 
     if(latest_build_json["state"] == "Successful")
