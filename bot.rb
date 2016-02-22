@@ -47,8 +47,8 @@ scheduler.every frequency do
     latest_keys[plan] = latest_build_json["planResultKey"]["key"]
 
     if (latest_build_json["state"] != "Successful" && prev_buid_failed[plan] != true)
-      indiv_response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{latest_keys[plan]}.json?os_authType=basic?expand=changes", basic_auth: authinfo)
-      culprits = indiv_response["changes"]["change"].map { |commit| commit["author"] }.uniq.join(' ,')
+      indiv_response = HTTParty.get("#{$bamboo_url}/rest/api/latest/result/#{latest_keys[plan]}.json?os_authType=basic&expand=changes", basic_auth: authinfo)
+      culprits = indiv_response["changes"]["change"].map { |commit| commit["author"] }.uniq.join(', ')
       p "failed"
       broadcast("\xF0\x9F\x94\xA5[#{latest_build_json["plan"]["shortName"]}] build #{latest_keys[plan]} failed!\xF0\x9F\x94\xA5 \nCulprits: #{culprits}")
     elsif (latest_build_json["state"] == "Successful" && prev_buid_failed[plan] == true)
