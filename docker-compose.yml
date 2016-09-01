@@ -1,0 +1,7 @@
+version: "2.0"
+services:
+  bot:
+    build: .
+    volumes:
+      - ./secrets.yml:/usr/src/app/secrets.yml
+    restart: always
