@@ -22,13 +22,18 @@ GEM
     ice_nine (0.11.1)
     json (1.8.3)
     mimemagic (0.3.1)
+    mini_portile2 (2.1.0)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    nokogiri (1.6.8)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
     persistent_http (1.0.6)
       gene_pool (>= 1.3)
     persistent_httparty (0.1.2)
       httparty (~> 0.9)
       persistent_http (< 2)
+    pkg-config (1.1.7)
     rufus-scheduler (3.2.0)
     telegram-bot-ruby (0.4.1)
       httmultiparty
@@ -45,8 +50,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  nokogiri
   rufus-scheduler
   telegram-bot-ruby
 
 BUNDLED WITH
-   1.11.2
+   1.12.5
